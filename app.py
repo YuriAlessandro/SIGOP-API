@@ -13,6 +13,17 @@ def main():
     """
     return ""
 
+@app.route('/auth', methods=['POST'])
+def login():
+    """ Verify logged user
+    """
+    params = request.form
+
+    username = params.get('username')
+    password = params.get('password')
+
+    return jsonify(auth(username, password))
+
 @app.route('/users', methods=['GET', 'POST'])
 def users():
     """
@@ -43,11 +54,15 @@ def users():
 
     return jsonify({'success': False})
 
-@app.route('/users/<int:user_id>', methods=['GET'])
+@app.route('/users/<int:user_id>', methods=['GET', 'PATCH', 'DELETE'])
 def user(user_id):
 
     if request.method == 'GET':
         return jsonify(get_user(user_id))
+    elif request.method == 'PATCH':
+        return jsonify({'success': False, 'error': 'Not implemented yet'})
+    elif request.method == 'DELETE':
+        return jsonify({'success': False, 'error': 'Not implemented yet'})
     
     return jsonify({'success': False})
     

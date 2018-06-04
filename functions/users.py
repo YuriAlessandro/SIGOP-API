@@ -1,6 +1,20 @@
 from functions.utils import connect_db
 from models.user import User
 
+def auth(username, password):
+    cnx = connect_db()
+    cur = cnx.cursor(buffered=True)
+
+    try:
+        cur.execute("SELECT idUser FROM User WHERE login = {} AND password = {}".format(username, password))
+
+    except Exception as e:
+        return {'success' : False, 'error' : str(e)}
+    user = {}
+    for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
+        user = {'idUser' : idUser}
+
+    return {"success" : True, 'user' : user}
 def list_users():
     """ List all users """
     cnx = connect_db()
@@ -34,20 +48,23 @@ def insert_user(user):
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
 
-    query = "INSERT INTO User VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    if user.user_type == 'aluno':
+        query = "INSERT INTO User VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-    try:
-        cur.execute(query, (user.user_id,
-                            user.first_name,
-                            user.last_name,
-                            user.status,
-                            user.login,
-                            user.email,
-                            user.password,
-                            user.user_type,
-                            user.unity))
-    except Exception as e:
-        return {'success': False, 'error': str(e)}
+        try:
+            cur.execute(query, (user.user_id,
+                                user.first_name,
+                                user.last_name,
+                                user.status,
+                                user.login,
+                                user.email,
+                                user.password,
+                                user.user_type,
+                                user.unity))
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    else:
+        pass
 
     new_user = cur.lastrowid
 
@@ -88,3 +105,4 @@ def get_user(user_id):
     cur.close()
     cnx.close()
     return {'success': True, 'user': user}
+
