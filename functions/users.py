@@ -1,14 +1,5 @@
-import mysql.connector
-
+from functions.utils import connect_db
 from models.user import User
-
-def connect_db():
-    """ Connect to database"""
-    connection = mysql.connector.connect(user='admin', password='senha',
-                                         host='127.0.0.1',
-                                         database='sigopdb')
-
-    return connection
 
 def list_users():
     """ List all users """
@@ -36,7 +27,7 @@ def list_users():
 
     cur.close()
     cnx.close()
-    return users
+    return {'success': True, 'users': users}
 
 def insert_user(user):
     """ Create a new user """
@@ -66,3 +57,34 @@ def insert_user(user):
 
     return {'success': True, 'inserted_user': new_user}
 
+def get_user(user_id):
+    """ Get a user """
+    cnx = connect_db()
+    cur = cnx.cursor(buffered=True)
+    query = "SELECT idUser, first_name, last_name, status, login, email, type, unity\
+             FROM User\
+             WHERE idUser={}".format(str(user_id)) 
+
+    try:
+        cur.execute(query)
+    except Exception as e:
+        print e
+        return {'success': False, 'error': str(e)}
+
+    user = {}
+    for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
+        user = {
+                'user_id': idUser,
+                'first_name': first_name,
+                'last_name': last_name,
+                'status': status,
+                'login': login,
+                'email': email,
+                'type': type,
+                'unity': unity
+            }
+            
+
+    cur.close()
+    cnx.close()
+    return {'success': True, 'user': user}

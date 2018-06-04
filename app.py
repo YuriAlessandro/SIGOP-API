@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, jsonify, request
-import functions
+from functions.users import *
 
 from models.user import User
 
@@ -22,7 +22,7 @@ def users():
 
     if request.method == 'GET':
         # Listar todos os usuários
-        return jsonify(functions.list_users())
+        return jsonify(list_users())
 
     elif request.method == 'POST':
         # Inserir um usuário
@@ -39,4 +39,15 @@ def users():
         user = User(user_id, first_name, last_name,
                     status, login, email, password,
                     user_type, unity)
-        return jsonify(functions.insert_user(user))
+        return jsonify(insert_user(user))
+
+    return jsonify({'success': False})
+
+@app.route('/users/<int:user_id>', methods=['GET'])
+def user(user_id):
+
+    if request.method == 'GET':
+        return jsonify(get_user(user_id))
+    
+    return jsonify({'success': False})
+    
