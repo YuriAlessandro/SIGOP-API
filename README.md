@@ -7,7 +7,11 @@ API for SIGOP android app
 - Install and configure MySQL
   - On Ubuntu 16.04: https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-16-04
 - Load SIGOP db to your mysql:
-  - $ mysql < file.sql
+  - $ mysql -u admin -p -h localhost < file.sql
+- Create a user and setup permissions on mysl:
+  - $ sudo mysql
+  - Create a username = admin and a password = senha
+    - Follow this steps: https://www.digitalocean.com/community/tutorials/como-criar-um-novo-usuario-e-conceder-permissoes-no-mysql-pt
 - Install virtualenv
   - $ sudo apt install virtualenv
 - Create a virtualenv
