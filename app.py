@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, jsonify, request
 from functions.users import *
+from functions.offers import *
 
 from models.user import User
 
@@ -17,7 +18,7 @@ def main():
 def login():
     """ Verify logged user
     """
-    params = request.form
+    params = request.args
 
     username = params.get('username')
     password = params.get('password')
@@ -65,4 +66,13 @@ def user(user_id):
         return jsonify({'success': False, 'error': 'Not implemented yet'})
     
     return jsonify({'success': False})
+
+@app.route('/offers', methods=['GET', 'POST'])
+def offers():
+    """ Offers """
+
+    params = request.args
+    
+    if request.method == 'GET':
+        return jsonify(list_offers())
     

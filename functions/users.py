@@ -5,14 +5,25 @@ def auth(username, password):
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
 
+    query = "SELECT idUser, first_name, last_name, status, login, email, type, unity \
+             FROM User\
+             WHERE login = %s AND password = %s"
     try:
-        cur.execute("SELECT idUser FROM User WHERE login = {} AND password = {}".format(username, password))
-
+        cur.execute(query, (username, password))
     except Exception as e:
         return {'success' : False, 'error' : str(e)}
+    
     user = {}
     for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
-        user = {'idUser' : idUser}
+        user = {
+            'idUser' : idUser,
+            'first_name': first_name,
+            'last_name': last_name,
+            'status': status,
+            'login': login,
+            'email': email,
+            'type': type,
+            'unity': unity }
 
     return {"success" : True, 'user' : user}
 def list_users():
@@ -78,11 +89,12 @@ def get_user(user_id):
     """ Get a user """
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
-    query = "SELECT idUser, first_name, last_name, status, login, email, type, unity\
-             FROM User\
-             WHERE idUser={}".format(str(user_id)) 
+    query = ("SELECT idUser, first_name, last_name, status, login, email, type, unity "
+             "FROM User "
+             "WHERE idUser = %s"% (user_id))
 
     try:
+        print user_id
         cur.execute(query)
     except Exception as e:
         print e
