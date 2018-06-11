@@ -4,6 +4,7 @@ from functions.users import *
 from functions.offers import *
 
 from models.user import User
+from models.offer import Offer
 
 app = Flask(__name__)
 
@@ -15,7 +16,7 @@ def main():
     return ""
 
 @app.route('/auth', methods=['POST'])
-def login():
+def auth_user():
     """ Verify logged user
     """
     params = request.args
@@ -74,5 +75,30 @@ def offers():
     params = request.args
     
     if request.method == 'GET':
-        return jsonify(list_offers())
-    
+        user_id = params.get('logged_user_id')
+        return jsonify(list_offers(user_id))
+
+    elif request.method == 'POST':
+        offer_id = params.get('offer_id')
+        title = params.get('title')
+        description = params.get('description')
+        user_id = params.get('user_id')
+        end_offer = params.get('endOffer')
+        email = params.get('email')
+        phone = params.get('phone')
+
+
+        offer = Offer(offer_id, title, description, user_id, end_offer, email, phone)
+
+        return jsonify(insert_offer(offer))
+
+    return jsonify({'success': True})
+
+@app.route('/offers/<int:offer_id>', methods=['GET', 'POST'])
+def offer(offer_id):
+
+    if request.method == 'GET':
+        pass
+    elif request.method == 'POST':
+        # Verify if
+        pass
