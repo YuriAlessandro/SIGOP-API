@@ -76,7 +76,10 @@ def offers():
     
     if request.method == 'GET':
         user_id = params.get('logged_user_id')
+        if not user_id:
+            return jsonify({'success':False, 'msg': 'missing logged_user_id'})
         return jsonify(list_offers(user_id))
+
 
     elif request.method == 'POST':
         offer_id = params.get('offer_id')
@@ -97,8 +100,17 @@ def offers():
 @app.route('/offers/<int:offer_id>', methods=['GET', 'POST'])
 def offer(offer_id):
 
+    params = request.args
+
     if request.method == 'GET':
-        pass
+        user_id = params.get('logged_user_id')
+        if not user_id:
+            return jsonify({'success':False, 'msg': 'missing logged_user_id'})
+        return jsonify(get_offer(offer_id, user_id)) 
+        
     elif request.method == 'POST':
-        # Verify if
+        # YURI UM DIA VAI FAZER
         pass
+
+if __name__ == "__main__":
+    app.run(debug=True)
