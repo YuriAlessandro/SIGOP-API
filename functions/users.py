@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from functions.utils import connect_db
 from models.user import User
 
@@ -24,7 +25,10 @@ def auth(username, password):
             'email': email,
             'type': type,
             'unity': unity }
-
+    
+    if not user:
+        return {'success': False, 'msg': u'Credenciais inválidas'}
+    
     return {"success" : True, 'user' : user}
 def list_users():
     """ List all users """
@@ -59,11 +63,11 @@ def insert_user(user):
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
 
-    if user.user_type == 'aluno':
-        query = "INSERT INTO User VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    if user.user_type == 'concedente':
+        query = "INSERT INTO User VALUES(LAST_INSERT_ID() + 1, %s, %s, %s, %s, %s, %s, %s, %s)"
 
         try:
-            cur.execute(query, (user.user_id,
+            cur.execute(query, (#user.user_id,
                                 user.first_name,
                                 user.last_name,
                                 user.status,
@@ -75,7 +79,7 @@ def insert_user(user):
         except Exception as e:
             return {'success': False, 'error': str(e)}
     else:
-        pass
+        return {'success': False, 'error': 'must be concedente type'}
 
     new_user = cur.lastrowid
 
