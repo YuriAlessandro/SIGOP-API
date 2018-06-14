@@ -38,6 +38,10 @@ def list_users():
         cur.execute("SELECT idUser, first_name, last_name, status, login, email, type, unity from User")
     except Exception as e:
         return {'success': False, 'error': str(e)}
+    finally:
+        cur.close()
+        cnx.close()
+        
 
     users = []
     for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
@@ -54,8 +58,6 @@ def list_users():
                 }
             )
 
-    cur.close()
-    cnx.close()
     return {'success': True, 'users': users}
 
 def insert_user(user):
@@ -76,16 +78,18 @@ def insert_user(user):
                                 user.password,
                                 user.user_type,
                                 user.unity))
+            cnx.commit()
         except Exception as e:
             return {'success': False, 'error': str(e)}
+        finally:
+            cur.close()
+            cnx.close()
+            
     else:
         return {'success': False, 'error': 'must be concedente type'}
 
     new_user = cur.lastrowid
 
-    cnx.commit()
-    cur.close()
-    cnx.close()
 
     return {'success': True, 'inserted_user': new_user}
 
@@ -98,11 +102,13 @@ def get_user(user_id):
              "WHERE idUser = %s"% (user_id))
 
     try:
-        print user_id
         cur.execute(query)
+
     except Exception as e:
-        print e
         return {'success': False, 'error': str(e)}
+    finally: 
+        cur.close()
+        cnx.close()
 
     user = {}
     for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
@@ -116,9 +122,6 @@ def get_user(user_id):
                 'type': type,
                 'unity': unity
             }
-            
-
-    cur.close()
-    cnx.close()
+                
     return {'success': True, 'user': user}
 
