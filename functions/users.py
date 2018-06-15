@@ -115,25 +115,23 @@ def get_user(user_id):
 
     try:
         cur.execute(query)
-
+        user = {}
+        for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
+            user = {
+                    'user_id': idUser,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'status': status,
+                    'login': login,
+                    'email': email,
+                    'type': type,
+                    'unity': unity
+                }
     except Exception as e:
         return {'success': False, 'error': str(e)}
     finally: 
         cur.close()
         cnx.close()
 
-    user = {}
-    for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
-        user = {
-                'user_id': idUser,
-                'first_name': first_name,
-                'last_name': last_name,
-                'status': status,
-                'login': login,
-                'email': email,
-                'type': type,
-                'unity': unity
-            }
-                
     return {'success': True, 'user': user}
 
