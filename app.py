@@ -74,10 +74,11 @@ def offers():
 
     params = request.args
     
-    if request.method == 'GET':
-        user_id = params.get('logged_user_id')
-        if not user_id:
+    user_id = params.get('logged_user_id')
+    if not user_id:
             return jsonify({'success':False, 'msg': 'missing logged_user_id'})
+    
+    if request.method == 'GET':
         return jsonify(list_offers(user_id))
 
 
@@ -85,11 +86,9 @@ def offers():
         offer_id = params.get('offer_id')
         title = params.get('title')
         description = params.get('description')
-        user_id = params.get('user_id')
         end_offer = params.get('endOffer')
         email = params.get('email')
         phone = params.get('phone')
-
 
         offer = Offer(offer_id, title, description, user_id, end_offer, email, phone)
 

@@ -66,7 +66,18 @@ def insert_user(user):
     cur = cnx.cursor(buffered=True)
 
     if user.user_type == 'concedente':
-        query = "INSERT INTO User VALUES(LAST_INSERT_ID() + 1, %s, %s, %s, %s, %s, %s, %s, %s)"
+        # Get last iserted id:
+        cur.execute("SELECT idUser FROM User ORDER BY idUser DESC LIMIT 1;")
+        
+        
+        last_inserted_id = None
+        for (idUser) in cur:
+            last_inserted_id = str(int(idUser[0] + 1))
+            
+        if not last_inserted_id:
+            last_inserted_id = 1
+            
+        query = "INSERT INTO User VALUES(" + str(last_inserted_id) + ", %s, %s, %s, %s, %s, %s, %s, %s)"
 
         try:
             cur.execute(query, (#user.user_id,
@@ -80,16 +91,17 @@ def insert_user(user):
                                 user.unity))
             cnx.commit()
         except Exception as e:
+            print str(e)
             return {'success': False, 'error': str(e)}
         finally:
             cur.close()
             cnx.close()
             
     else:
+        print 'error', 'must be concedente type'
         return {'success': False, 'error': 'must be concedente type'}
 
     new_user = cur.lastrowid
-
 
     return {'success': True, 'inserted_user': new_user}
 

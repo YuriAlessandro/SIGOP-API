@@ -47,15 +47,25 @@ def insert_offer(offer):
     
         cur = cnx.cursor(buffered=True)
         
-        query = "INSERT INTO Offer VALUES (LAST_INSERT_ID() + 1, %s, %s, %s, %s)"
+        # Get last iserted id:
+        cur.execute("SELECT idOffer FROM Offer ORDER BY idOffer DESC LIMIT 1;")
+        
+        last_inserted_id = None
+        for (idUser) in cur:
+            last_inserted_id = str(int(idUser[0] + 1))
+            
+        if not last_inserted_id:
+            last_inserted_id = 1
+        
+        query = "INSERT INTO Offer VALUES (" + str(last_inserted_id) + ", %s, %s, %s, %s)"
         cur.execute(query, (#offer.offer_id, 
                             offer.title, 
                             offer.description, 
                             offer.user_id, 
                             offer.end_offer))
         
-        query = "INSERT INTO Offer_Contact VALUES(%s, %s, %s)"    
-        cur.execute(query, (offer.email, offer.phone, offer.offer_id))
+        query = "INSERT INTO Offer_Contact VALUES(%s, %s, " + str(last_inserted_id) +")"    
+        cur.execute(query, (offer.email, offer.phone))
         
         cnx.commit()
     except Exception as e:
