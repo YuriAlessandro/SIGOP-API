@@ -13,20 +13,13 @@ def list_offers(user_id):
                      WHERE Favorite.user_id = %s )  AS my_favorites \
                      ON Offer.idOffer = my_favorites.idOffer\
                      LIMIT 100 ;"%(user_id))
-    
-
-    except Exception as e:
-        return {'success': False, 'error': str(e)}
-    finally:
-        cur.close()
-        cnx.close()
-
     offers_map = {}
     for (idOffer, description, email, phone) in cur:
         offer = offers_map.get(idOffer)
         if offer:
             offer.get('contacts', []).append({'email': email, 'phone': phone})
         else:
+            
             offers_map[idOffer] = {
                     'idOffer': idOffer,
                     'description': description,
@@ -35,6 +28,14 @@ def list_offers(user_id):
     offers = []
     for offer_id, offer in offers_map.iteritems():
         offers.append(offer)
+
+
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+    finally:
+        cur.close()
+        cnx.close()
+
 
     return {'success': True, 'offers': offers}
 
