@@ -1,5 +1,6 @@
 from functions.utils import connect_db
 
+
 def list_offers(user_id):
     """ List all users """
     cnx = connect_db()
@@ -13,13 +14,20 @@ def list_offers(user_id):
                      WHERE Favorite.user_id = %s )  AS my_favorites \
                      ON Offer.idOffer = my_favorites.idOffer\
                      LIMIT 100 ;"%(user_id))
+    
+
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+    finally:
+        cur.close()
+        cnx.close()
+
     offers_map = {}
     for (idOffer, description, email, phone) in cur:
         offer = offers_map.get(idOffer)
         if offer:
             offer.get('contacts', []).append({'email': email, 'phone': phone})
         else:
-            
             offers_map[idOffer] = {
                     'idOffer': idOffer,
                     'description': description,
@@ -28,14 +36,6 @@ def list_offers(user_id):
     offers = []
     for offer_id, offer in offers_map.iteritems():
         offers.append(offer)
-
-
-    except Exception as e:
-        return {'success': False, 'error': str(e)}
-    finally:
-        cur.close()
-        cnx.close()
-
 
     return {'success': True, 'offers': offers}
 
@@ -67,6 +67,12 @@ def insert_offer(offer):
         
         query = "INSERT INTO Offer_Contact VALUES(%s, %s, " + str(last_inserted_id) +")"    
         cur.execute(query, (offer.email, offer.phone))
+
+        query = "INSERT INTO Offer_Vacancies VALUES(%s, %s, " + str(last_inserted_id) +")"    
+        cur.execute(query, (offer.offer_type, offer.salary_aids, offer.salary_total))
+
+        query = "INSERT INTO Offer_Location VALUES(%s, " + str(last_inserted_id) +", %s, %s)"    
+        cur.execute(query, (offer.location, offer.latitude, offer.longitude))
         
         cnx.commit()
     except Exception as e:

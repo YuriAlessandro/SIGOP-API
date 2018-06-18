@@ -9,6 +9,12 @@ class Offer(object):
         self._user_id = user_id
         self._email = email
         self._phone = phone
+        self._type = offer_type
+        self._salary_aids = salary_aids
+        self._salary_total = salary_total
+        self._location = location
+        self._latitude = latitude
+        self._longitude = longitude
 
     @property
     def offer_id(self):
@@ -38,4 +44,17 @@ class Offer(object):
     def phone(self):
         return self._phone
     
+    @property
+    def offer_type(self):
+        return self._offer_type
+    
+    @property
+    def salary_aids(self):
+        return self._salary_aids
+
+    @property
+    def salary_total(self):
+        return self._salary_total
+
+
     
