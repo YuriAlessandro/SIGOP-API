@@ -1,5 +1,6 @@
 from functions.utils import connect_db
 
+
 def list_offers(user_id):
     """ List all users """
     cnx = connect_db()
@@ -13,7 +14,20 @@ def list_offers(user_id):
                      WHERE Favorite.user_id = %s )  AS my_favorites \
                      ON Offer.idOffer = my_favorites.idOffer\
                      LIMIT 100 ;"%(user_id))
-    
+        offers_map = {}
+        for (idOffer, description, email, phone) in cur:
+            offer = offers_map.get(idOffer)
+            if offer:
+                offer.get('contacts', []).append({'email': email, 'phone': phone})
+            else:
+                offers_map[idOffer] = {
+                        'idOffer': idOffer,
+                        'description': description,
+                        'contacts': [{'email': email, 'phone': phone}]
+                    }
+        offers = []
+        for offer_id, offer in offers_map.iteritems():
+            offers.append(offer)
 
     except Exception as e:
         return {'success': False, 'error': str(e)}
@@ -21,21 +35,7 @@ def list_offers(user_id):
         cur.close()
         cnx.close()
 
-    offers_map = {}
-    for (idOffer, description, email, phone) in cur:
-        offer = offers_map.get(idOffer)
-        if offer:
-            offer.get('contacts', []).append({'email': email, 'phone': phone})
-        else:
-            offers_map[idOffer] = {
-                    'idOffer': idOffer,
-                    'description': description,
-                    'contacts': [{'email': email, 'phone': phone}]
-                }
-    offers = []
-    for offer_id, offer in offers_map.iteritems():
-        offers.append(offer)
-
+    
     return {'success': True, 'offers': offers}
 
 def insert_offer(offer):
@@ -66,6 +66,12 @@ def insert_offer(offer):
         
         query = "INSERT INTO Offer_Contact VALUES(%s, %s, " + str(last_inserted_id) +")"    
         cur.execute(query, (offer.email, offer.phone))
+
+        query = "INSERT INTO Offer_Vacancies VALUES(%s, %s, %s, " + str(last_inserted_id) +")"    
+        cur.execute(query, (offer.offer_type, offer.salary_aids, offer.salary_total))
+
+        query = "INSERT INTO Offer_Location VALUES(%s, " + str(last_inserted_id) +", %s, %s)"    
+        cur.execute(query, (offer.location, offer.latitude, offer.longitude))
         
         cnx.commit()
     except Exception as e:
@@ -95,6 +101,28 @@ def get_offer(offer_id, user_id):
 
     try:
         cur.execute(query)
+        offer = {}
+        offer_map = {}
+        for (idOffer, title, description, endOffer, email, phone, location, latitude, longitude, salary_aids, salary_total, idUser, first_name, last_name) in cur:
+            offer = offer_map.get(idOffer)
+            if offer:
+                offer.get('contacts', []).append({'email': email, 'phone': phone})
+                offer.get('vacancies', []).append({'salary_aids':salary_aids, 'salary_total': salary_total})
+            else:
+                offer_map[idOffer] = {
+                    'offer_id': idOffer,
+                    'title': title,
+                    'description': description,
+                    'end_offer': endOffer,
+                    'contacts': [{'email': email, 'phone':phone}],
+                    'location':location,
+                    'latitude':latitude,
+                    'longitude':longitude,
+                    'vacancies': [{'salary_aids':salary_aids, 'salary_total': salary_total}],
+                    'user_id': idUser,
+                    'first_name':first_name,
+                    'last_name':last_name
+                }
         
     except Exception as e:
         return {'success': False, 'error': str(e)}
@@ -103,27 +131,6 @@ def get_offer(offer_id, user_id):
         cnx.close()
 
 
-    offer = {}
-    offer_map = {}
-    for (idOffer, title, description, endOffer, email, phone, location, latitude, longitude, salary_aids, salary_total, idUser, first_name, last_name) in cur:
-        offer = offer_map.get(idOffer)
-        if offer:
-             offer.get('contacts', []).append({'email': email, 'phone': phone})
-             offer.get('vacancies', []).append({'salary_aids':salary_aids, 'salary_total': salary_total})
-        else:
-             offer_map[idOffer] = {
-                'offer_id': idOffer,
-                'title': title,
-                'description': description,
-                'end_offer': endOffer,
-                'contacts': [{'email': email, 'phone':phone}],
-                'location':location,
-                'latitude':latitude,
-                'longitude':longitude,
-                'vacancies': [{'salary_aids':salary_aids, 'salary_total': salary_total}],
-                'user_id': idUser,
-                'first_name':first_name,
-                'last_name':last_name
-            }
+    
    
     return {'success': True, 'offer': offer_map.get(offer_id)}

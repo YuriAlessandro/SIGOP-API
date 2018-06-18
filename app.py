@@ -89,8 +89,16 @@ def offers():
         end_offer = params.get('endOffer')
         email = params.get('email')
         phone = params.get('phone')
+        offer_type = params.get('offer_type')
+        salary_aids = params.get('salary_aids')
+        salary_total = params.get('salary_total')
+        location = params.get('location')
+        latitude = params.get('latitude')
+        longitude = params.get('longitude')
 
-        offer = Offer(offer_id, title, description, user_id, end_offer, email, phone)
+        offer = Offer(offer_id, title, description, user_id,
+                end_offer, email, phone, offer_type, salary_aids,
+                salary_total, location, latitude, longitude)
 
         return jsonify(insert_offer(offer))
 
