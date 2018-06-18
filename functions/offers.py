@@ -1,7 +1,7 @@
 from functions.utils import connect_db
 
 def list_offers(user_id):
-    """ List all users """
+    """ List all offers """
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
     try:
