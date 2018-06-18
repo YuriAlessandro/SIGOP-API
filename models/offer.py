@@ -56,5 +56,14 @@ class Offer(object):
     def salary_total(self):
         return self._salary_total
 
-
+    @property
+    def location(self):
+        return self._location
     
+    @property
+    def latitude(self):
+        return self._latitude
+
+    @property
+    def longitude(self):
+        return self._longitude   
