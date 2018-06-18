@@ -1,6 +1,8 @@
 class Offer(object):
     """docstring for Offer"""
-    def __init__(self, offer_id, title, description, user_id, end_offer, email, phone):
+    def __init__(self, offer_id, title, description, user_id,
+                end_offer, email, phone, offer_type, salary_aids,
+                salary_total, location, latitude, longitude):
         super(Offer, self).__init__()
         self._offer_id = offer_id
         self._title = title
@@ -46,7 +48,7 @@ class Offer(object):
     
     @property
     def offer_type(self):
-        return self._offer_type
+        return self._type
     
     @property
     def salary_aids(self):
