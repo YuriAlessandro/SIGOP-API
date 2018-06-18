@@ -96,7 +96,10 @@ def offers():
         latitude = params.get('latitude')
         longitude = params.get('longitude')
 
-        offer = Offer(offer_id, title, description, user_id, end_offer, email, phone)
+        offer = Offer(offer_id, title, description,
+                    user_id, end_offer, email, phone,
+                    offer_type, salary_aids, salary_total,
+                    location, latitude, longitude)
 
         return jsonify(insert_offer(offer))
 
