@@ -15,7 +15,7 @@ def list_offers(user_id):
                      ON Offer.idOffer = my_favorites.idOffer\
                      LIMIT 100 ;"%(user_id))
         offers_map = {}
-        for (idOffer, description, email, phone) in cur:
+        for (idOffer, description, email, phone, user_id) in cur:
             offer = offers_map.get(idOffer)
             if offer:
                 offer.get('contacts', []).append({'email': email, 'phone': phone})
@@ -35,7 +35,7 @@ def list_offers(user_id):
     finally:
         cur.close()
         cnx.close()
-        
+
     return {'success': True, 'offers': offers}
 
 def insert_offer(offer):
