@@ -2,9 +2,11 @@
 from flask import Flask, jsonify, request
 from functions.users import *
 from functions.offers import *
+from functions.favorites import *
 
 from models.user import User
 from models.offer import Offer
+from models.favorite import Favorite
 
 app = Flask(__name__)
 
@@ -76,7 +78,7 @@ def offers():
     
     user_id = params.get('logged_user_id')
     if not user_id:
-            return jsonify({'success':False, 'msg': 'missing logged_user_id'})
+        return jsonify({'success':False, 'msg': 'missing logged_user_id'})
     
     if request.method == 'GET':
         return jsonify(list_offers(user_id))
@@ -118,6 +120,28 @@ def offer(offer_id):
     elif request.method == 'POST':
         # YURI UM DIA VAI FAZER
         pass
+
+@app.route('/favorites', methods=['GET', 'POST'])
+def favorite():
+    """ Favorite """
+    params = request.args
+    user_id = params.get('logged_user_id')
+
+    if not user_id:
+        return jsonify({'success':False, 'msg': 'missing logged_user_id'})
+
+    if request.method == 'GET':
+        return jsonify(list_favorites(user_id))
+
+    elif request.method == 'POST':
+        offer_id = params.get('offer_id')
+
+        favorite = Favorite(user_id, offer_id)
+
+        return jsonify(insert_favorite(favorite))
+
+    return jsonify({'success': True})
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080, debug=True)

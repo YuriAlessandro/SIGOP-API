@@ -2,11 +2,11 @@ from functions.utils import connect_db
 
 
 def list_offers(user_id):
-    """ List all users """
+    """ List all offers """
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
     try:
-        cur.execute("SELECT Offer.idOffer, description, email, phone \
+        cur.execute("SELECT Offer.idOffer, description, email, phone, user_id \
                      FROM Offer \
                      NATURAL JOIN Offer_Contact\
                      LEFT JOIN \
@@ -15,7 +15,7 @@ def list_offers(user_id):
                      ON Offer.idOffer = my_favorites.idOffer\
                      LIMIT 100 ;"%(user_id))
         offers_map = {}
-        for (idOffer, description, email, phone) in cur:
+        for (idOffer, description, email, phone, user_id) in cur:
             offer = offers_map.get(idOffer)
             if offer:
                 offer.get('contacts', []).append({'email': email, 'phone': phone})
@@ -23,6 +23,7 @@ def list_offers(user_id):
                 offers_map[idOffer] = {
                         'idOffer': idOffer,
                         'description': description,
+                        'user_id' : user_id,
                         'contacts': [{'email': email, 'phone': phone}]
                     }
         offers = []
@@ -35,7 +36,6 @@ def list_offers(user_id):
         cur.close()
         cnx.close()
 
-    
     return {'success': True, 'offers': offers}
 
 def insert_offer(offer):
