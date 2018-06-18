@@ -121,3 +121,17 @@ def offer(offer_id):
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080, debug=True)
+
+@app.route('/users/<int:user_id>/offers', methods=['GET'])
+def useroffer(user_id):
+    
+    params = request.args
+    
+    user_id = params.get('logged_user_id')
+    
+    if not user_id:
+            return jsonify({'success':False, 'msg': 'missing logged_user_id'})
+    
+    return jsonify(list_offers_by_id(user_id))
+        
+
