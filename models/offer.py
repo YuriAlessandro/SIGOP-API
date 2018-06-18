@@ -1,6 +1,8 @@
 class Offer(object):
     """docstring for Offer"""
-    def __init__(self, offer_id, title, description, user_id, end_offer, email, phone):
+    def __init__(self, offer_id, title, description, user_id,
+                end_offer, email, phone, offer_type, salary_aids,
+                salary_total, location, latitude, longitude):
         super(Offer, self).__init__()
         self._offer_id = offer_id
         self._title = title
@@ -9,6 +11,12 @@ class Offer(object):
         self._user_id = user_id
         self._email = email
         self._phone = phone
+        self._type = offer_type
+        self._salary_aids = salary_aids
+        self._salary_total = salary_total
+        self._location = location
+        self._latitude = latitude
+        self._longitude = longitude
 
     @property
     def offer_id(self):
@@ -38,4 +46,26 @@ class Offer(object):
     def phone(self):
         return self._phone
     
+    @property
+    def offer_type(self):
+        return self._type
     
+    @property
+    def salary_aids(self):
+        return self._salary_aids
+
+    @property
+    def salary_total(self):
+        return self._salary_total
+
+    @property
+    def location(self):
+        return self._location
+    
+    @property
+    def latitude(self):
+        return self._latitude
+
+    @property
+    def longitude(self):
+        return self._longitude   
