@@ -14,26 +14,27 @@ def list_favorites(user_id):
                      ON Offer.idOffer = my_favorites.idOffer\
                      LIMIT 100 ;"%(user_id))
 
+        offers_map = {}
+        for (idOffer, description, email, phone) in cur:
+            offer = offers_map.get(idOffer)
+            if offer:
+                offer.get('contacts', []).append({'email': email, 'phone': phone})
+            else:
+                offers_map[idOffer] = {
+                        'idOffer': idOffer,
+                        'description': description,
+                        'contacts': [{'email': email, 'phone': phone}]
+                    }
+        offers = []
+        for offer_id, offer in offers_map.iteritems():
+            offers.append(offer)
+        
     except Exception as e:
         return {'success': False, 'error': str(e)}
     finally:
         cur.close()
         cnx.close()
 
-    offers_map = {}
-    for (idOffer, description, email, phone) in cur:
-        offer = offers_map.get(idOffer)
-        if offer:
-            offer.get('contacts', []).append({'email': email, 'phone': phone})
-        else:
-            offers_map[idOffer] = {
-                    'idOffer': idOffer,
-                    'description': description,
-                    'contacts': [{'email': email, 'phone': phone}]
-                }
-    offers = []
-    for offer_id, offer in offers_map.iteritems():
-        offers.append(offer)
 
     return {'success': True, 'Favorites': offers}
 

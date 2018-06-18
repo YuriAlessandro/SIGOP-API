@@ -5,7 +5,7 @@ def list_offers(user_id):
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
     try:
-        cur.execute("SELECT Offer.idOffer, description, email, phone \
+        cur.execute("SELECT Offer.idOffer, description, email, phone, user_id \
                      FROM Offer \
                      NATURAL JOIN Offer_Contact\
                      LEFT JOIN \
@@ -22,7 +22,7 @@ def list_offers(user_id):
         cnx.close()
 
     offers_map = {}
-    for (idOffer, description, email, phone) in cur:
+    for (idOffer, description, email, phone, user_id) in cur:
         offer = offers_map.get(idOffer)
         if offer:
             offer.get('contacts', []).append({'email': email, 'phone': phone})
@@ -30,6 +30,7 @@ def list_offers(user_id):
             offers_map[idOffer] = {
                     'idOffer': idOffer,
                     'description': description,
+                    'user_id' : user_id,
                     'contacts': [{'email': email, 'phone': phone}]
                 }
     offers = []
