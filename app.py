@@ -171,7 +171,7 @@ def favorite():
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080, debug=True)
 
-@app.route('/users/<int:user_id>/offers', methods=['GET'])
+@app.route('/myOffers/<int:user_id>', methods=['GET'])
 def useroffer(user_id):
     
     params = request.args
