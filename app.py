@@ -28,6 +28,30 @@ def auth_user():
     password = params.get('password')
 
     return jsonify(auth(username, password))
+    
+
+@app.route('/auth/sigaa', methods=['POST'])
+def auth_user_sigaa():
+    """
+    """
+    params = request.args
+    
+    email = params.get('email')
+    username = params.get('username')
+    
+    user_id = params.get('user_id')
+    first_name = params.get('first_name')
+    last_name = params.get('last_name')
+    status = params.get('status')
+    password = params.get('password')
+    user_type = params.get('type')
+    unity = params.get('unity')
+    
+    user = User(0, first_name, last_name,
+                status, username, email, password,
+                user_type, unity)
+    
+    return jsonify(auth_sigaa(email, username, user))
 
 @app.route('/users', methods=['GET', 'POST'])
 def users():
