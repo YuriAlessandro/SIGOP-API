@@ -7,6 +7,7 @@ from functions.favorites import *
 from models.user import User
 from models.offer import Offer
 from models.favorite import Favorite
+from models.avaliation import Avaliation
 
 app = Flask(__name__)
 
@@ -121,6 +122,30 @@ def offer(offer_id):
         # YURI UM DIA VAI FAZER
         pass
 
+@app.route('/offers/<int:offer_id>/avaliations', methods=['GET', 'POST'])
+def avaliation(offer_id):
+    
+    params = request.args
+
+    if request.method == 'GET':
+        return jsonify(list_avaliations(offer_id))
+    
+    elif request.method == 'POST':
+        user_id = params.get('logged_user_id')
+        if not user_id:
+            return jsonify({'success':False, 'msg': 'missing logged_user_id'})
+        
+        avaliation_id = params.get('avaliation_id')
+        date = params.get('date')
+        value = params.get('value')
+        text = params.get('text')
+    
+        avaliation = Avaliation(avaliation_id, date, offer_id,
+                                user_id, value, text)
+        return jsonify(insert_avaliation(avaliation))
+    return jsonify({'success': True})
+
+
 @app.route('/favorites', methods=['GET', 'POST'])
 def favorite():
     """ Favorite """
@@ -151,11 +176,7 @@ def useroffer(user_id):
     
     params = request.args
     
-    user_id = params.get('logged_user_id')
-    
     if not user_id:
             return jsonify({'success':False, 'msg': 'missing logged_user_id'})
     
     return jsonify(list_offers_by_id(user_id))
-        
-

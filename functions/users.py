@@ -31,17 +31,10 @@ def auth(username, password):
     
     return {"success" : True, 'user' : user}
 def list_users():
+    
     """ List all users """
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
-    try:
-        cur.execute("SELECT idUser, first_name, last_name, status, login, email, type, unity from User")
-    except Exception as e:
-        return {'success': False, 'error': str(e)}
-    finally:
-        cur.close()
-        cnx.close()
-        
 
     users = []
     for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
@@ -57,6 +50,14 @@ def list_users():
                     'unity': unity
                 }
             )
+
+    try:
+        cur.execute("SELECT idUser, first_name, last_name, status, login, email, type, unity from User")
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+    finally:
+        cur.close()
+        cnx.close()
 
     return {'success': True, 'users': users}
 

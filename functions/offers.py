@@ -23,7 +23,7 @@ def list_offers(user_id):
                 offers_map[idOffer] = {
                         'idOffer': idOffer,
                         'description': description,
-                        'user_id' : user_id,
+                        'user_favorite' : user_id,
                         'contacts': [{'email': email, 'phone': phone}]
                     }
         offers = []
@@ -91,21 +91,21 @@ def insert_offer(offer):
         if not last_inserted_id:
             last_inserted_id = 1
         
-        query = "INSERT INTO Offer VALUES (" + str(last_inserted_id) + ", %s, %s, %s, %s)"
-        cur.execute(query, (#offer.offer_id, 
+        query = "INSERT INTO Offer VALUES (%s, %s, %s, %s, %s)"
+        cur.execute(query, (last_inserted_id, 
                             offer.title, 
                             offer.description, 
                             offer.user_id, 
                             offer.end_offer))
         
-        query = "INSERT INTO Offer_Contact VALUES(%s, %s, " + str(last_inserted_id) +")"    
-        cur.execute(query, (offer.email, offer.phone))
+        query = "INSERT INTO Offer_Contact VALUES(%s, %s, %s)"    
+        cur.execute(query, (offer.email, offer.phone, last_inserted_id))
 
-        query = "INSERT INTO Offer_Vacancies VALUES(%s, %s, %s, " + str(last_inserted_id) +")"    
-        cur.execute(query, (offer.offer_type, offer.salary_aids, offer.salary_total))
+        query = "INSERT INTO Offer_Vacancies VALUES(%s, %s, %s, %s)"    
+        cur.execute(query, (offer.offer_type, offer.salary_aids, offer.salary_total, last_inserted_id))
 
-        query = "INSERT INTO Offer_Location VALUES(%s, " + str(last_inserted_id) +", %s, %s)"    
-        cur.execute(query, (offer.location, offer.latitude, offer.longitude))
+        query = "INSERT INTO Offer_Location VALUES(%s, %s, %s, %s)"    
+        cur.execute(query, (offer.location, last_inserted_id, offer.latitude, offer.longitude))
         
         cnx.commit()
     except Exception as e:
@@ -115,7 +115,6 @@ def insert_offer(offer):
         cnx.close()
         
     new_offer = cur.lastrowid
-
 
     return {'success': True, 'inserted_offer': new_offer}
 
@@ -164,7 +163,74 @@ def get_offer(offer_id, user_id):
         cur.close()
         cnx.close()
 
-
-    
-   
     return {'success': True, 'offer': offer_map.get(offer_id)}
+
+def list_avaliations(offer_id):
+        
+    cnx = connect_db()
+    cur = cnx.cursor(buffered=True)
+
+    try:
+        cur.execute("SELECT idAvaliation, date, idOffer, userId, value, text\
+                    FROM Avaliation\
+                    NATURAL JOIN Rate\
+                    NATURAL JOIN Comment\
+                    WHERE Avaliation.idOffer = %s ;"%(offer_id))
+    
+        avaliations = []
+        for(idAvaliation, date, idOffer, userId, value, text) in cur:
+            avaliations.append(
+                {
+                    'avaliation_id' : idAvaliation,
+                    'date' : date,
+                    'offer_id' : idOffer,
+                    'user_id' : userId,
+                    'rating' : value,
+                    'comment' : text
+                }
+            )
+
+    except Exception as e:
+        return {'success' : False, 'error' : str(e)}
+    finally:
+        cur.close()
+    return {'sucess' : True, 'avaliations': avaliations}
+
+def insert_avaliation(avaliation):
+    
+    cnx = connect_db()
+    cur = cnx.cursor(buffered=True)
+
+    try:
+
+        cur.execute("SELECT idAvaliation FROM Avaliation ORDER BY idAvaliation DESC LIMIT 1;")
+        last_inserted_id = None
+        for (idAvaliation) in cur:
+            last_inserted_id = str(int(idAvaliation[0] + 1))
+            
+        if not last_inserted_id:
+            last_inserted_id = 1
+
+        made_querry = 1
+        query = "INSERT INTO Avaliation VALUES (" + str(last_inserted_id) + ", %s, %s, %s)"
+        cur.execute(query, (avaliation.date,
+                            avaliation.offer_id,
+                            avaliation.user_id))
+
+        print type(avaliation.offer_id)
+        print type(avaliation.user_id)
+
+        made_querry = made_querry + 1
+        cur.execute("INSERT INTO Rate VALUES (%s, %s)", (avaliation.value, last_inserted_id))
+        made_querry = made_querry + 1
+        cur.execute("INSERT INTO Comment VALUES (%s, %s)", (avaliation.text, last_inserted_id))
+        cnx.commit()
+        
+    except Exception as e:
+        return {'success' : False, 'error' : str(e), 'last_try' : made_querry}
+
+    finally:
+        cur.close()
+        cnx.close()
+
+    return {'sucess' : True, 'avaliations': last_inserted_id}
