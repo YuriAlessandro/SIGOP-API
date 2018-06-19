@@ -30,6 +30,37 @@ def auth(username, password):
         return {'success': False, 'msg': u'Credenciais inválidas'}
     
     return {"success" : True, 'user' : user}
+
+def auth_sigaa(email, username, user_o):
+    cnx = connect_db()
+    cur = cnx.cursor(buffered=True)
+    
+    query = "SELECT idUser, first_name, last_name, status, login, email, type, unity \
+             FROM User\
+             WHERE login = %s AND email = %s"
+    try:
+        cur.execute(query, (username, email))
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+    user = {}
+    for (idUser, first_name, last_name, status, login, email, type, unity) in cur:
+        user = {
+            'idUser' : idUser,
+            'first_name': first_name,
+            'last_name': last_name,
+            'status': status,
+            'login': login,
+            'email': email,
+            'type': type,
+            'unity': unity 
+        }
+            
+    if user:
+        return {'success': True, 'inserted': False, 'user': user}
+    else:
+        return(insert_user(user_o))
+
 def list_users():
     
     """ List all users """
@@ -66,45 +97,40 @@ def insert_user(user):
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
 
-    if user.user_type == 'concedente':
-        # Get last iserted id:
-        cur.execute("SELECT idUser FROM User ORDER BY idUser DESC LIMIT 1;")
+    # Get last iserted id:
+    cur.execute("SELECT idUser FROM User ORDER BY idUser DESC LIMIT 1;")
+    
+    
+    last_inserted_id = None
+    for (idUser) in cur:
+        last_inserted_id = str(int(idUser[0] + 1))
         
+    if not last_inserted_id:
+        last_inserted_id = 1
         
-        last_inserted_id = None
-        for (idUser) in cur:
-            last_inserted_id = str(int(idUser[0] + 1))
-            
-        if not last_inserted_id:
-            last_inserted_id = 1
-            
-        query = "INSERT INTO User VALUES(" + str(last_inserted_id) + ", %s, %s, %s, %s, %s, %s, %s, %s)"
+    query = "INSERT INTO User VALUES(" + str(last_inserted_id) + ", %s, %s, %s, %s, %s, %s, %s, %s)"
 
-        try:
-            cur.execute(query, (#user.user_id,
-                                user.first_name,
-                                user.last_name,
-                                user.status,
-                                user.login,
-                                user.email,
-                                user.password,
-                                user.user_type,
-                                user.unity))
-            cnx.commit()
-        except Exception as e:
-            print str(e)
-            return {'success': False, 'error': str(e)}
-        finally:
-            cur.close()
-            cnx.close()
+    try:
+        cur.execute(query, (#user.user_id,
+                            user.first_name,
+                            user.last_name,
+                            user.status,
+                            user.login,
+                            user.email,
+                            user.password,
+                            user.user_type,
+                            user.unity))
+        cnx.commit()
+    except Exception as e:
+        print str(e)
+        return {'success': False, 'error': str(e)}
+    finally:
+        cur.close()
+        cnx.close()
             
-    else:
-        print 'error', 'must be concedente type'
-        return {'success': False, 'error': 'must be concedente type'}
+    new_user = last_inserted_id
 
-    new_user = cur.lastrowid
-
-    return {'success': True, 'inserted_user': new_user}
+    return {'success': True, 'inserted': True, 'inserted_user': new_user}
 
 def get_user(user_id):
     """ Get a user """

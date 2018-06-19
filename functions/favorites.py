@@ -5,9 +5,11 @@ def list_favorites(user_id):
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
     try:
-        cur.execute("SELECT Offer.idOffer, description, email, phone \
+        cur.execute("SELECT Offer.idOffer, title, description, email, phone, salary_aids, salary_total, location \
                      FROM Offer \
                      NATURAL JOIN Offer_Contact\
+                     NATURAL JOIN Offer_Vacancies\
+                     NATURAL JOIN Offer_Location\
                      JOIN \
                      (SELECT * FROM Favorite \
                      WHERE Favorite.user_id = %s )  AS my_favorites \
@@ -15,15 +17,19 @@ def list_favorites(user_id):
                      LIMIT 100 ;"%(user_id))
 
         offers_map = {}
-        for (idOffer, description, email, phone) in cur:
+        for (idOffer, title, description, email, phone, salary_aids, salary_total, location) in cur:
             offer = offers_map.get(idOffer)
             if offer:
                 offer.get('contacts', []).append({'email': email, 'phone': phone})
+                offer.get('vacancies', []).append({'salary_aids' : salary_aids, 'salary_total': salary_total})
             else:
                 offers_map[idOffer] = {
                         'idOffer': idOffer,
+                        'title': title,
                         'description': description,
-                        'contacts': [{'email': email, 'phone': phone}]
+                        'contacts': [{'email': email, 'phone': phone}],
+                        'vacancies' : [{'salary_aids' : salary_aids, 'salary_total': salary_total}],
+                        'location' : location
                     }
         offers = []
         for offer_id, offer in offers_map.iteritems():
