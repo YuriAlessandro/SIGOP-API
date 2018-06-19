@@ -3,11 +3,13 @@ from flask import Flask, jsonify, request
 from functions.users import *
 from functions.offers import *
 from functions.favorites import *
+from functions.interests import *
 
 from models.user import User
 from models.offer import Offer
 from models.favorite import Favorite
 from models.avaliation import Avaliation
+from models.interest import Interest
 
 app = Flask(__name__)
 
@@ -173,10 +175,29 @@ if __name__ == "__main__":
 
 @app.route('/users/<int:user_id>/offers', methods=['GET'])
 def useroffer(user_id):
-    
-    params = request.args
-    
+
     if not user_id:
             return jsonify({'success':False, 'msg': 'missing logged_user_id'})
     
     return jsonify(list_offers_by_id(user_id))
+
+@app.route('/interests', methods = ['GET', 'POST'])
+def interests():
+    params = request.args
+    user_id = params.get('logged_user_id')
+
+    if not user_id:
+        return jsonify({'success':False, 'msg': 'missing logged_user_id'})
+        
+    if request.method == "GET":
+        return jsonify(list_interests(user_id))
+
+    elif request.method == "POST":
+        value = params.get('value')
+        location = params.get('location')
+        unity = params.get('unity')
+        keyword = params.get('keyword')
+        interest = Interest(value, user_id,
+                            location, unity, keyword)
+
+        return jsonify(insert_interest(interest))
