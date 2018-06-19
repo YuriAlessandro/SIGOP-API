@@ -6,26 +6,30 @@ def list_offers(user_id):
     cnx = connect_db()
     cur = cnx.cursor(buffered=True)
     try:
-        cur.execute("SELECT Offer.idOffer, title, description, email, phone, user_id, salary_aids, salary_total, location \
+        cur.execute("SELECT Offer.idOffer, title, description, Offer_Contact.email, phone, user_id, salary_aids, salary_total, location, endOffer, first_name, last_name \
                      FROM Offer \
                      NATURAL JOIN Offer_Contact\
                      NATURAL JOIN Offer_Vacancies\
                      NATURAL JOIN Offer_Location\
+                     JOIN User ON idUser = userId\
                      LEFT JOIN \
                      (SELECT * FROM Favorite \
                      WHERE Favorite.user_id = %s )  AS my_favorites \
                      ON Offer.idOffer = my_favorites.idOffer\
                      LIMIT 100 ;"%(user_id))
         offers_map = {}
-        for (idOffer, title, description, email, phone, user_id, salary_aids, salary_total, location) in cur:
+        for (idOffer, title, description, email, phone, user_id, salary_aids, salary_total, location, endOffer, first_name, last_name) in cur:
             offer = offers_map.get(idOffer)
             if offer:
                 offer.get('contacts', []).append({'email': email, 'phone': phone})
                 offer.get('vacancies', []).append({'salary_aids' : salary_aids, 'salary_total': salary_total})
             else:
                 offers_map[idOffer] = {
+                        'first_name': first_name,
+                        'last_name': last_name,
+                        'endOffer': endOffer,
                         'idOffer': idOffer,
-                        'tittle': title,
+                        'title': title,
                         'description': description,
                         'user_favorite' : user_id,
                         'contacts': [{'email': email, 'phone': phone}],
