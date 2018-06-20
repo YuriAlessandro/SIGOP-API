@@ -192,9 +192,6 @@ def favorite():
     return jsonify({'success': True})
 
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080, debug=True)
-
 @app.route('/myOffers/<int:user_id>', methods=['GET'])
 def useroffer(user_id):
     
@@ -204,3 +201,6 @@ def useroffer(user_id):
             return jsonify({'success':False, 'msg': 'missing logged_user_id'})
     
     return jsonify(list_offers_by_id(user_id))
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8080, debug=True)
